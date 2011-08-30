@@ -47,7 +47,8 @@ void FreeHashtable( HashTable *hash )
 	{
 		if ( hash->buckets[i] ) 
 		{
-			free( hash->buckets[i]->data );
+			if( hash->buckets[i]->data.mType == HashData::ePtr )
+				free( hash->buckets[i]->data.uData.pData );
 			free( hash->buckets[i] );
 		}
 	}
@@ -82,15 +83,47 @@ static unsigned int doHash( HashTable* hash, unsigned int key )
 	return key % hash->num_buckets;
 }
 
-void HashtableAdd( HashTable *h, unsigned int key, void *data )
+void HashtableAddPtr( HashTable *h, unsigned int key, void *data )
 {
 	HashNode *node = (HashNode *) malloc( sizeof( HashNode ) );
 	node->key = key;
-	node->data = data;
+
+	node->data.mType = HashData::ePtr;
+	node->data.uData.pData = data;
 	node->next = h->buckets[doHash( h, key )];
 	h->buckets[ doHash( h, key ) ] = node;
 	h->num_elements++;
 }
+
+void HashtableAddInt( HashTable *h, unsigned int key, int data )
+{
+	HashNode *node = (HashNode *) malloc( sizeof( HashNode ) );
+	node->key = key;
+
+	node->data.mType = HashData::eInt;
+	node->data.uData.nValue = data;
+	node->next = h->buckets[doHash( h, key )];
+	h->buckets[ doHash( h, key ) ] = node;
+	h->num_elements++;
+}
+
+void HashtableAddData( HashTable *h, unsigned int key, HashData *data )
+{
+	HashNode *node = (HashNode *) malloc( sizeof( HashNode ) );
+	node->key = key;
+
+	node->data.mType = data->mType;
+
+	if( data->mType == HashData::eInt )
+		node->data.uData.nValue = data->uData.nValue;
+	else
+		node->data.uData.pData = data->uData.pData;
+
+	node->next = h->buckets[doHash( h, key )];
+	h->buckets[ doHash( h, key ) ] = node;
+	h->num_elements++;
+}
+
 
 void HashtableDelete( HashTable *h, unsigned int key )
 {
@@ -109,7 +142,9 @@ void HashtableDelete( HashTable *h, unsigned int key )
 	else
 		h->buckets[index] = temp->next;
 	h->num_elements--;
-	free( temp->data );
+
+	if( temp->data.mType == HashData::ePtr )
+		free( temp->data.uData.pData );
 	free( temp );
 }
 
@@ -133,7 +168,21 @@ void HashtableDeleteCautious( HashTable *h, unsigned int key )
 	free( temp );
 }
 
-void *HashtableSearch( HashTable *h, unsigned int key )
+bool HashtableKeyExists( HashTable *h, unsigned int key )
+{
+	unsigned int index = doHash( h, key );
+	HashNode *temp;
+	for ( temp = h->buckets[index]; temp; temp = temp->next )
+	{
+		if ( temp->key == key )
+			break;
+	}
+
+	return temp != 0;
+}
+
+
+void *HashtableSearchPtr( HashTable *h, unsigned int key )
 {
 	unsigned int index = doHash( h, key );
 	HashNode *temp;
@@ -143,30 +192,19 @@ void *HashtableSearch( HashTable *h, unsigned int key )
 			break;
 	}
 	if ( !temp )
-	{
 		return NULL;
+
+	if( temp->data.mType == HashData::eInt )
+	{
+		printf( "Warning, HashTableSearchPtr found int value\n" );
+		return 0;
 	}
-	return temp->data;
+
+	return temp->data.uData.pData;
 }
 
 int HashtableSearchInt(HashTable* h, unsigned int key)
 {
-	void* ret = HashtableSearch( h, key );
-
-	int* foo = (int*) &ret;
-
-	if (sizeof(void*) == 4)
-	{
-		return foo[0];
-	}
-	else
-	{
-		return foo[1];
-	}
-}
-
-void HashtableReplace( HashTable *h, unsigned int key, void *data, int free_mem )
-{
 	unsigned int index = doHash( h, key );
 	HashNode *temp;
 	for ( temp = h->buckets[index]; temp; temp = temp->next )
@@ -174,16 +212,17 @@ void HashtableReplace( HashTable *h, unsigned int key, void *data, int free_mem 
 		if ( temp->key == key )
 			break;
 	}
+
 	if ( !temp )
+		return 0;
+
+	if( temp->data.mType != HashData::eInt )
 	{
-		HashtableAdd( h, key, data );
-		return;
+		printf( "Warning, HashTableSearchInt found non-int value\n" );
+		return 0;
 	}
-	if ( free_mem )
-	{
-		free( temp->data );
-	}
-	temp->data = data;
+
+	return temp->data.uData.nValue;
 }
 
 unsigned int HashtableNumElements( HashTable *h) 

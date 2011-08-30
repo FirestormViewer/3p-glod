@@ -1474,7 +1474,7 @@ void VDSCut::readback(int PatchID, GLOD_RawPatch* raw) {
                 }
         
                 // now remember where it went to
-                HashtableAdd(v_src_to_raw, s_v + 1, (void*)(d_v + 1));
+                HashtableAddInt(v_src_to_raw, s_v + 1, d_v + 1);
                 d_v++; // pretend like it came from the zero-bad hash
             }
       

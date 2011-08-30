@@ -41,7 +41,7 @@ void glodInsertArrays (GLuint name, GLuint patchname,
 		       GLenum mode,
 		       GLint first, GLsizei count,
 		       GLuint level, GLfloat geometric_error) {
-  GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+  GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
   if(obj == NULL) {
     GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist.", name);
     return;
@@ -59,9 +59,9 @@ void glodInsertArrays (GLuint name, GLuint patchname,
   }
 
   // convert the any-named patch to a 0...N number
-  if(HashtableSearch(obj->patch_id_map, patchname+1) == NULL) { // does this patch already exist
+  if(!HashtableKeyExists(obj->patch_id_map, patchname+1)) { // does this patch already exist
       p->name = HashtableNumElements(obj->patch_id_map);
-      HashtableAdd(obj->patch_id_map, patchname+1, (void*) (ptrdiff_t) (p->name+1));
+      HashtableAddInt(obj->patch_id_map, patchname+1, p->name+1);
   } else {
     if(obj->format != GLOD_DISCRETE_MANUAL) {
       GLOD_SetError(GLOD_INVALID_NAME, "A patch of this name already exists!\n");
@@ -78,7 +78,7 @@ void glodInsertArrays (GLuint name, GLuint patchname,
 void glodInsertElements (GLuint name, GLuint patchname, 
 			 GLenum mode, GLuint count, GLenum type, GLvoid* indices,
 			 GLuint level, GLfloat geometric_error) {
-  GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+  GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
 
   if(obj == NULL) {
     GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist", name);
@@ -97,9 +97,9 @@ void glodInsertElements (GLuint name, GLuint patchname,
   }
 
   // convert the any-named patch to a 0...N number
-  if(HashtableSearch(obj->patch_id_map, patchname+1) == NULL) { // does this patch already exist
+  if(!HashtableKeyExists(obj->patch_id_map, patchname+1) ) { // does this patch already exist
       p->name = HashtableNumElements(obj->patch_id_map);
-      HashtableAdd(obj->patch_id_map, patchname+1, (void*) (ptrdiff_t) (p->name+1));
+      HashtableAddInt(obj->patch_id_map, patchname+1, p->name+1);
   } else {
     if(obj->format != GLOD_DISCRETE_MANUAL) {
       GLOD_SetError(GLOD_INVALID_NAME, "A patch of this name already exists!\n");
@@ -120,7 +120,7 @@ extern int ProduceVA(GLOD_Cut* c, int patchNum,
                      void* indices, GLenum indices_type);
 
 GLOD_APIENTRY void glodFillArrays( GLuint name, GLuint patch_name ) {
-  GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+  GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
   int patch_id;
   
   if(obj == NULL) {
@@ -151,7 +151,7 @@ GLOD_APIENTRY void glodFillArrays( GLuint name, GLuint patch_name ) {
 GLOD_APIENTRY void glodFillElements( GLuint name, GLuint patch_name, 
                                      GLenum type, GLvoid* out_elements ) {
   // now read the cut
-  GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+  GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
   int patch_id;
   
   if(obj == NULL) {

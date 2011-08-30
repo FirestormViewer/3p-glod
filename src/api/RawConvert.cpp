@@ -188,7 +188,7 @@ GLOD_RawPatch* ProducePatch(GLenum mode,
 	  
 	  // put it into the hash --- asign a new index
 	  index = cur_idx; cur_idx++;
-	  HashtableAdd(index_hash, ibuf[j]+1,(void*) (ptrdiff_t) (index+1));
+	  HashtableAddInt(index_hash, ibuf[j]+1,index+1);
           // we have another vertex
           vcount++;
 	}
