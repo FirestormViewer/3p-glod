@@ -29,7 +29,7 @@
 /***************************************************************************/
 
 void glodObjectParameteri (GLuint name, GLenum pname, GLint param) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist.", name);
         return;
@@ -151,7 +151,7 @@ void glodObjectParameteri (GLuint name, GLenum pname, GLint param) {
 
 
 void glodObjectParameteriv (GLuint name, GLenum pname, GLint count, GLint *param) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist.", name);
         return;
@@ -227,7 +227,7 @@ void glodObjectParameterfv(GLuint name, GLenum pname,
                            GLint count, GLfloat *param) 
 {
     GLOD_Object* obj = 
-        (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+        (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if (obj == NULL) 
     {
         GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist.", name);
@@ -310,7 +310,7 @@ void glodObjectParameterfv(GLuint name, GLenum pname,
 /* glodObjectParameterf
 ***************************************************************************/
 void glodObjectParameterf (GLuint name, GLenum pname, GLfloat param) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist", name);
         return;
@@ -361,7 +361,7 @@ void glodObjectParameterf (GLuint name, GLenum pname, GLfloat param) {
 /* glodObjectParameteriv
 ***************************************************************************/
 void glodGetObjectParameteriv (GLuint name, GLenum pname, GLint *param) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist", name);
         return;
@@ -375,7 +375,7 @@ void glodGetObjectParameteriv (GLuint name, GLenum pname, GLint *param) {
             unsigned int k; ptrdiff_t d;
             HASHTABLE_WALK(obj->patch_id_map, node); //hashtable  --> patch name to 0-based-patch-index
             k = node->key - 1; 
-			d = (ptrdiff_t) node->data - 1;
+			d = node->data.uData.nValue - 1;
             param[d] = k;
             HASHTABLE_WALK_END(obj->patch_id_map);
         }
@@ -397,7 +397,7 @@ void glodGetObjectParameteriv (GLuint name, GLenum pname, GLint *param) {
             GLuint nV, nI;
             HASHTABLE_WALK(obj->patch_id_map, node); //hashtable  --> patch name to 0-based-patch-index
             k = node->key - 1; 
-			d = (ptrdiff_t) node->data - 1;
+			d = node->data.uData.nValue - 1;
             obj->cut->getReadbackSizes(d, &nI, &nV);
             param[(2*d)] = nI;
             param[(2*d)+1] = nV;
@@ -414,7 +414,7 @@ void glodGetObjectParameteriv (GLuint name, GLenum pname, GLint *param) {
 /* glodObjectParameterfv
 ***************************************************************************/
 void glodGetObjectParameterfv (GLuint name, GLenum pname, GLfloat *param) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object doesn't exist.", name);
         return;

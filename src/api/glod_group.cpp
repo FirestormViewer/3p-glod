@@ -123,14 +123,14 @@ void glodAdjustTiles(float *meanError){
 void glodNewGroup(GLuint name)
 {
     GLOD_Group *group =
-	(GLOD_Group *)HashtableSearch(s_APIState.group_hash, name);
+	(GLOD_Group *)HashtableSearchPtr(s_APIState.group_hash, name);
     if (group != NULL) {
 	GLOD_SetError(GLOD_INVALID_NAME, "Group name already exists.", name);
 	return;
     }
 
     group = new GLOD_Group();
-    HashtableAdd(s_APIState.group_hash, name, group);
+    HashtableAddPtr(s_APIState.group_hash, name, group);
     return;
 } /* End of glodNewGroup() **/
   
@@ -142,7 +142,7 @@ void glodDeleteGroup(GLuint name)
     GLOD_Object* obj;
     
     GLOD_Group *group =
-	(GLOD_Group *)HashtableSearch(s_APIState.group_hash, name);
+	(GLOD_Group *)HashtableSearchPtr(s_APIState.group_hash, name);
     
     if(group == NULL)
     {
@@ -170,7 +170,7 @@ void glodDeleteGroup(GLuint name)
 
 void glodAdaptGroup(GLuint name) {
     GLOD_Group *group =
-	(GLOD_Group *)HashtableSearch(s_APIState.group_hash, name);
+	(GLOD_Group *)HashtableSearchPtr(s_APIState.group_hash, name);
     
     if(group == NULL) {
 	GLOD_SetError(GLOD_INVALID_NAME, "Group does not exist", name);

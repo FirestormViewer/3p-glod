@@ -14,9 +14,27 @@ extern "C" {
 
 #define HASH_DEFAULT_NUM_BUCKETS 1047
 
+
+typedef struct HashData
+{
+	union
+	{
+		void *pData;
+		int nValue;
+	} uData;
+
+	enum EValType
+	{
+		ePtr, eInt
+	};
+
+	EValType mType;
+
+} HashData;
+
 typedef struct HashNode {
         unsigned int key;
-        void *data;
+        HashData data;
         struct HashNode *next;
 } HashNode;
 
@@ -30,12 +48,16 @@ HashTable *AllocHashtable( void );
 HashTable *AllocHashtableBySize( int num_buckets );
 void FreeHashtable( HashTable *hash );
 void FreeHashtableCautious ( HashTable *hash ); // does not free data pointer
-void HashtableAdd( HashTable *h, unsigned int key, void *data );
+void HashtableAddData( HashTable *h, unsigned int key, HashData *data );
+void HashtableAddPtr( HashTable *h, unsigned int key, void *data );
+void HashtableAddInt( HashTable *h, unsigned int key, int data );
 void HashtableDelete( HashTable *h, unsigned int key );
 void HashtableDeleteCautious( HashTable *h, unsigned int key);
-void *HashtableSearch( HashTable *h, unsigned int key );
+void *HashtableSearchPtr( HashTable *h, unsigned int key );
 int HashtableSearchInt(HashTable* h, unsigned int key);
-void HashtableReplace( HashTable *h, unsigned int key, void *data, int free_mem );
+
+bool HashtableKeyExists( HashTable *h, unsigned int key );
+
 unsigned int HashtableNumElements( HashTable *h) ;
 
 #define HASHTABLE_WALK( h, t ) {         \

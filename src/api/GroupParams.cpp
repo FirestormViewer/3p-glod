@@ -31,7 +31,7 @@
 void glodGroupParameteri(GLuint name, GLenum pname, GLint param)
 {
     GLOD_Group *group =
-	(GLOD_Group *)HashtableSearch(s_APIState.group_hash, name);
+	(GLOD_Group *)HashtableSearchPtr(s_APIState.group_hash, name);
     if(group == NULL) {
 	GLOD_SetError(GLOD_INVALID_NAME, "Group does not exist", name);
 	return;
@@ -91,7 +91,7 @@ void glodGroupParameteri(GLuint name, GLenum pname, GLint param)
 void glodGroupParameterf (GLuint name, GLenum pname, GLfloat param)
 {
     GLOD_Group *group =
-	(GLOD_Group *)HashtableSearch(s_APIState.group_hash, name);
+	(GLOD_Group *)HashtableSearchPtr(s_APIState.group_hash, name);
     if(group == NULL) {
 	GLOD_SetError(GLOD_INVALID_NAME, "Group does not exist", name);
 	return;
@@ -119,7 +119,7 @@ void glodGroupParameterf (GLuint name, GLenum pname, GLfloat param)
  ***************************************************************************/
 void glodGetGroupParameteriv (GLuint name, GLenum pname, GLint *param) {
     GLOD_Group *group =
-	(GLOD_Group *)HashtableSearch(s_APIState.group_hash, name);
+	(GLOD_Group *)HashtableSearchPtr(s_APIState.group_hash, name);
     if(group == NULL) {
 	GLOD_SetError(GLOD_INVALID_NAME, "Group does not exist");
 	return;

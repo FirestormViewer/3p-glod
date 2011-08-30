@@ -44,7 +44,7 @@
 
 
 void glodNewObject(GLuint name, GLuint groupname, GLenum format) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     
     if(obj != NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Name already in use:", name);
@@ -62,7 +62,7 @@ void glodNewObject(GLuint name, GLuint groupname, GLenum format) {
     obj->name = name;
     obj->format = format;
     obj->group_name = groupname;
-    HashtableAdd(s_APIState.object_hash, name, obj); // put it in the namespace
+    HashtableAddPtr(s_APIState.object_hash, name, obj); // put it in the namespace
     
     // initialize the patch table
     obj->patch_id_map = AllocHashtableBySize(PATCH_HASH_BUCKET_SIZE);
@@ -83,12 +83,12 @@ void glodNewObject(GLuint name, GLuint groupname, GLenum format) {
 void glodInstanceObject(GLuint name, GLuint instancename, GLuint groupname)
 {
     GLOD_Object* obj; GLOD_Object* dst;
-    obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL ) {
         GLOD_SetError(GLOD_INVALID_NAME, "Source object doesn't exist:", name);
         return;
     }
-    if( HashtableSearch(s_APIState.object_hash, instancename) != NULL) {
+    if( HashtableKeyExists(s_APIState.object_hash, instancename) ) {
         GLOD_SetError(GLOD_INVALID_NAME, "An object already exists named ",  name);
         return;
     } 
@@ -109,12 +109,12 @@ void glodInstanceObject(GLuint name, GLuint instancename, GLuint groupname)
     dst->budgetRefineHeapData=HeapElement(dst);
     dst->inArea=new int[GLOD_NUM_TILES];
     
-    HashtableAdd(s_APIState.object_hash, instancename, dst);
+    HashtableAddPtr(s_APIState.object_hash, instancename, dst);
     
     // duplicate the patch_id_map... we don't have to worry about this changing
     dst->patch_id_map = AllocHashtableBySize(PATCH_HASH_BUCKET_SIZE);
     HASHTABLE_WALK(obj->patch_id_map, node); //hashtable  --> patch name to 0
-    HashtableAdd(dst->patch_id_map, node->key, node->data);
+    HashtableAddData(dst->patch_id_map, node->key, &node->data);
     HASHTABLE_WALK_END(obj->patch_id_map);
     
     // make a cut
@@ -123,10 +123,10 @@ void glodInstanceObject(GLuint name, GLuint instancename, GLuint groupname)
     //fprintf(stderr, "After dst->cut = obj->hierarchy->makeCut(),\nGLOD_Object(dst)=%x -> cut: %x -> mpCut: %x\n GLOD_Object(obj)=%x -> cut: %x -> mpCut: %x\n", dst, dst->cut, dst->cut->mpCut, obj, obj->cut, obj->cut->mpCut);
     
     // add it to the group...  
-    GLOD_Group* group = (GLOD_Group*) HashtableSearch(s_APIState.group_hash, groupname);
+    GLOD_Group* group = (GLOD_Group*) HashtableSearchPtr(s_APIState.group_hash, groupname);
     if(group == NULL) {
         group = new GLOD_Group();
-        HashtableAdd(s_APIState.group_hash, groupname, group);
+        HashtableAddPtr(s_APIState.group_hash, groupname, group);
     }
     group->addObject(dst);
     
@@ -138,7 +138,7 @@ void glodBuildObject (GLuint name) {
     
     GLOD_Object* obj; GLOD_Group* group;
     
-    obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL ) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object doesn't exist: ", name);
         return;
@@ -229,10 +229,10 @@ void glodBuildObject (GLuint name) {
     obj->cut = obj->hierarchy->makeCut();
     
     // now add it to the group
-    group = (GLOD_Group*) HashtableSearch(s_APIState.group_hash, obj->group_name);
+    group = (GLOD_Group*) HashtableSearchPtr(s_APIState.group_hash, obj->group_name);
     if(group == NULL) {
         group = new GLOD_Group();
-        HashtableAdd(s_APIState.group_hash, obj->group_name, group);
+        HashtableAddPtr(s_APIState.group_hash, obj->group_name, group);
     }
     group->addObject(obj);
 } /* End of glodBuildObject() **/
@@ -241,7 +241,7 @@ void glodBuildObject (GLuint name) {
 void glodDeleteObject(GLuint name)
 {
     GLOD_Object* obj =
-        (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+        (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     
     if(obj == NULL ) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object doesn't exist:", name);
@@ -266,7 +266,7 @@ void glodBindObjectXform(GLuint objectname, GLenum what) {
     const bool h_neither = !(h_model || h_proj);
     
     GLOD_Object *obj =
-        (GLOD_Object*) HashtableSearch(s_APIState.object_hash, objectname);
+        (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, objectname);
     
     if(obj == NULL ) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object doesn't exist:", objectname);
@@ -310,7 +310,7 @@ void glodBindObjectXform(GLuint objectname, GLenum what) {
 void glodObjectXform(GLuint objectname, float m1[16], float m2[16], float m3[16])
 {
     GLOD_Object *obj =
-        (GLOD_Object*) HashtableSearch(s_APIState.object_hash, objectname);
+        (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, objectname);
     float mt[16];
     
     if(obj == NULL ) {
@@ -346,7 +346,7 @@ void glodObjectXform(GLuint objectname, float m1[16], float m2[16], float m3[16]
 /***************************************************************************/
 
 void glodReadbackObject(GLuint name, GLvoid *data) { 
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist:", name);
         return;
@@ -371,7 +371,7 @@ void glodReadbackObject(GLuint name, GLvoid *data) {
 
 // must stay in sync with the NewObject code
 void glodLoadObject(GLuint name, GLuint group_name, const GLvoid *data) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj != NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "An object of the specified name already exists.", name);
         return;
@@ -381,7 +381,7 @@ void glodLoadObject(GLuint name, GLuint group_name, const GLvoid *data) {
     obj = new GLOD_Object();
     obj->name = name;
     obj->group_name = group_name;
-    HashtableAdd(s_APIState.object_hash, name, obj); // put it in the namespace
+    HashtableAddPtr(s_APIState.object_hash, name, obj); // put it in the namespace
     
     // load the header... format and patch-indirect table
     int format;
@@ -397,7 +397,7 @@ void glodLoadObject(GLuint name, GLuint group_name, const GLvoid *data) {
         unsigned int k; unsigned int value;
         memcpy(&k, ((char*)data) + offset, sizeof(unsigned int)); offset += sizeof(unsigned int);    
         memcpy(&value, ((char*)data) + offset, sizeof(unsigned int)); offset += sizeof(unsigned int);    
-		HashtableAdd(obj->patch_id_map, k, (void*) ((ptrdiff_t) value));
+		HashtableAddInt(obj->patch_id_map, k, value);
     }
     
     // read the hierarchy
@@ -432,10 +432,10 @@ void glodLoadObject(GLuint name, GLuint group_name, const GLvoid *data) {
     obj->cut = obj->hierarchy->makeCut();
     
     // now add it to the group
-    GLOD_Group* group = (GLOD_Group*) HashtableSearch(s_APIState.group_hash, obj->group_name);
+    GLOD_Group* group = (GLOD_Group*) HashtableSearchPtr(s_APIState.group_hash, obj->group_name);
     if(group == NULL) {
         group = new GLOD_Group();
-        HashtableAdd(s_APIState.group_hash, obj->group_name, group);
+        HashtableAddPtr(s_APIState.group_hash, obj->group_name, group);
     }
     group->addObject(obj);
 }
@@ -463,7 +463,7 @@ void HandlePatch(GLOD_Object* obj, GLOD_RawPatch* patch, int level, float geomet
 
 /***************************************************************************/
 void glodDrawPatch(GLuint name, GLuint patchname) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist", name);
         return;
@@ -483,7 +483,7 @@ void glodDrawPatch(GLuint name, GLuint patchname) {
 
 void DrawRawGLOD(int name);
 void glodDebugDrawObject(GLuint name) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     if(obj == NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist.\n", name);
         return;
@@ -509,7 +509,7 @@ void DrawRawGLOD(int name) {
     // for now, draw the patch wrongly
     GLOD_RawObject* raw;
     GLOD_RawPatch* patch;
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
     raw = (GLOD_RawObject*) obj->prebuild_buffer;
     if(raw  == NULL) {
         GLOD_SetError(GLOD_INVALID_NAME, "Raw Object doesn't exist!", name);
