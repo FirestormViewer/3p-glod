@@ -24,8 +24,15 @@ set -x
 top="$(pwd)"
 case "$AUTOBUILD_PLATFORM" in
     "windows")
-        build_sln "glodlib.sln" "Debug|Default"
-        build_sln "glodlib.sln" "Release|Default"
+        if [ "${AUTOBUILD_ARCH}" == "x64" ]
+        then
+          build_sln "glodlib.sln" "Debug|x64"
+          build_sln "glodlib.sln" "Release|x64"
+        else
+          build_sln "glodlib.sln" "Debug|Win32"
+          build_sln "glodlib.sln" "Release|Win32"
+        fi
+
 		mkdir -p stage/lib/{debug,release}
         cp "lib/debug/glod.lib" \
             "stage/lib/debug/glod.lib"
