@@ -30,7 +30,7 @@ echo "${GLOD_VERSION}.${build}" > "${STAGING_DIR}/VERSION.txt"
 
 case "$AUTOBUILD_PLATFORM" in
     "windows")
-        if [ "${AUTOBUILD_ARCH}" == "x64" ]
+        if [ "${ND_AUTOBUILD_ARCH}" == "x64" ]
         then
           build_sln "glodlib.sln" "Debug|x64"
           build_sln "glodlib.sln" "Release|x64"
