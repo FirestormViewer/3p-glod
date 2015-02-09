@@ -68,8 +68,9 @@ case "$AUTOBUILD_PLATFORM" in
         "linux")
 			libdir="$top/stage/lib"
             mkdir -p "$libdir"/{debug,release}
-			export CFLAGS=${AUTOBUILD_GCC_ARCH_FLAG}
-			export LFLAGS=${AUTOBUILD_GCC_ARCH_FLAG}
+			export CFLAGS=${ND_AUTOBUILD_GCC_ARCH_FLAG}
+			export CXXFLAGS=${ND_AUTOBUILD_GCC_ARCH_FLAG}
+			export LDFLAGS=${ND_AUTOBUILD_GCC_ARCH_FLAG}
 			make -C src clean
 			make -C src debug
 			cp "lib/libGLOD.so" \

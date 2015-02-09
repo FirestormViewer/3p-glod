@@ -12,8 +12,8 @@
 ##############################################################################
 LIBNAME=libvds.a
 
-CFLAGS=-m32 -g -DLinux -I/uf6/gfx/include -fno-stack-protector
-LFLAGS=-lGL -lpthread -L./   -lzt -fno-stack-protector
+CFLAGS+=-g -DLinux -I/uf6/gfx/include -fno-stack-protector
+LFLAGS+=-lGL -lpthread -L./   -lzt -fno-stack-protector
 #LFLAGS+=-L/usr/X11R6/lib/ -lglx -lX11
 
 OBJ_SUFFIX=.o
