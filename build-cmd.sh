@@ -53,13 +53,19 @@ case "$AUTOBUILD_PLATFORM" in
     ;;
         "darwin")
 			libdir="$top/stage/lib"
+			export CFLAGS="-arch i386 -arch x86_64"
+			export LFLAGS="-arch i386 -arch x86_64"
             mkdir -p "$libdir"/{debug,release}
 			make -C src clean
+			# "make clean" doesn't, apparently.
+			find . -name \*.a -print0 | xargs -0 rm
 			make -C src debug
 			install_name_tool -id "@executable_path/../Resources/libGLOD.dylib" "lib/libGLOD.dylib" 
 			cp "lib/libGLOD.dylib" \
 				"$libdir/debug/libGLOD.dylib"
 			make -C src clean
+			# "make clean" doesn't, apparently.
+			find . -name \*.a -print0 | xargs -0 rm
 			make -C src release
 			install_name_tool -id "@executable_path/../Resources/libGLOD.dylib" "lib/libGLOD.dylib" 
 			cp "lib/libGLOD.dylib" \
