@@ -1,16 +1,20 @@
-#!/bin/sh
+#!/bin/bash
 
 # turn on verbose debugging output for parabuild logs.
 set -x
 # make errors fatal
 set -e
+# complain about unreferenced env variables
+set -u
 
 if [ -z "$AUTOBUILD" ] ; then 
     fail
 fi
 
 if [ "$OSTYPE" = "cygwin" ] ; then
-    export AUTOBUILD="$(cygpath -u $AUTOBUILD)"
+    autobuild="$(cygpath -u $AUTOBUILD)"
+else
+    autobuild="$AUTOBUILD"
 fi
 
 # run build from root of checkout
@@ -18,8 +22,11 @@ cd "$(dirname "$0")"
 
 # load autbuild provided shell functions and variables
 set +x
-eval "$("$AUTOBUILD" source_environment)"
+eval "$("$autobuild" source_environment)"
 set -x
+
+# set LL_BUILD
+set_build_variables convenience Release
 
 top="$(pwd)"
 STAGING_DIR="$(pwd)/stage"
@@ -37,29 +44,22 @@ case "$AUTOBUILD_PLATFORM" in
         cp "lib/release/glod.lib" "stage/lib/release/glod.lib"
         cp "lib/release/glod.dll" "stage/lib/release/glod.dll"
     ;;
-    "darwin")
+    darwin*)
         libdir="$top/stage/lib"
-        mkdir -p "$libdir"/{debug,release}
-        make -C src clean
-        make -C src debug
-        install_name_tool -id "@executable_path/../Resources/libGLOD.dylib" "lib/libGLOD.dylib" 
-        cp "lib/libGLOD.dylib" \
-            "$libdir/debug/libGLOD.dylib"
+        mkdir -p "$libdir"/release
+        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD"
+        export LFLAGS="$CFLAGS"
         make -C src clean
         make -C src release
         install_name_tool -id "@executable_path/../Resources/libGLOD.dylib" "lib/libGLOD.dylib" 
         cp "lib/libGLOD.dylib" \
             "$libdir/release/libGLOD.dylib"
     ;;
-    "linux")
+    linux*)
         libdir="$top/stage/lib"
-        mkdir -p "$libdir"/{debug,release}
-        export CFLAGS=-m32
-        export LFLAGS=-m32
-        make -C src clean
-        make -C src debug
-        cp "lib/libGLOD.so" \
-            "$libdir/debug/libGLOD.so"
+        mkdir -p "$libdir"/release
+        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD"
+        export LFLAGS="$CFLAGS"
         make -C src clean
         make -C src release
         cp "lib/libGLOD.so" \

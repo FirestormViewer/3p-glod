@@ -65,7 +65,6 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>lib/debug/*.dylib</string>
             <string>lib/release/*.dylib</string>
           </array>
           <key>name</key>
@@ -90,7 +89,6 @@
           </map>
           <key>manifest</key>
           <array>
-            <string>lib/debug/*.so</string>
             <string>lib/release/*.so</string>
           </array>
           <key>name</key>
