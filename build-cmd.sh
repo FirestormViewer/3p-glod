@@ -1,14 +1,14 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # turn on verbose debugging output for parabuild logs.
-set -x
+exec 4>&1; export BASH_XTRACEFD=4; set -x
 # make errors fatal
 set -e
 # complain about unreferenced env variables
 set -u
 
 if [ -z "$AUTOBUILD" ] ; then 
-    fail
+    exit 1
 fi
 
 if [ "$OSTYPE" = "cygwin" ] ; then
@@ -19,17 +19,13 @@ fi
 
 # run build from root of checkout
 cd "$(dirname "$0")"
-
-# load autbuild provided shell functions and variables
-set +x
-eval "$("$autobuild" source_environment)"
-set -x
-
-# set LL_BUILD
-set_build_variables convenience Release
-
 top="$(pwd)"
 STAGING_DIR="$(pwd)/stage"
+
+# load autobuild provided shell functions and variables
+source_environment_tempfile="$STAGING_DIR/source_environment.sh"
+"$autobuild" source_environment > "$source_environment_tempfile"
+. "$source_environment_tempfile"
 
 GLOD_VERSION=1.0pre4
 build=${AUTOBUILD_BUILD_ID:=0}
@@ -47,7 +43,7 @@ case "$AUTOBUILD_PLATFORM" in
     darwin*)
         libdir="$top/stage/lib"
         mkdir -p "$libdir"/release
-        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD"
+        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
         export LFLAGS="$CFLAGS"
         make -C src clean
         make -C src release
@@ -58,7 +54,7 @@ case "$AUTOBUILD_PLATFORM" in
     linux*)
         libdir="$top/stage/lib"
         mkdir -p "$libdir"/release
-        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD"
+        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
         export LFLAGS="$CFLAGS"
         make -C src clean
         make -C src release
@@ -70,6 +66,3 @@ mkdir -p "stage/include/glod"
 cp "include/glod.h" "stage/include/glod/glod.h"
 mkdir -p stage/LICENSES
 cp LICENSE stage/LICENSES/GLOD.txt
-
-pass
-
