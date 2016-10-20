@@ -39,12 +39,15 @@ source_environment_tempfile="$STAGING_DIR/source_environment.sh"
 # We only want the second sed command to print the FIRST version header -- so
 # instead of just printing every such line, make it execute {spq}: substitute,
 # print, quit.
+# But for some reason that introduces a final '\r' character -- yes, even on
+# Posix. Get rid of it.
 GLOD_VERSION="$(sed -n '/^CHANGELOG/,$p' README | \
 sed -n -E '/^([^[:space:]]+)[[:space:]]+\(.*\)/{
 s//\1/
 p
 q
-}')"
+}' | \
+tr -d '\r')"
 
 build=${AUTOBUILD_BUILD_ID:=0}
 echo "${GLOD_VERSION}.${build}" > "${STAGING_DIR}/VERSION.txt"
