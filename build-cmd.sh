@@ -65,6 +65,7 @@ case "$AUTOBUILD_PLATFORM" in
         libdir="$top/stage/lib"
         mkdir -p "$libdir"/release
         export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
+        export CXXFLAGS="$CFLAGS"
         export LFLAGS="$CFLAGS"
         make -C src clean
         make -C src release
@@ -76,6 +77,7 @@ case "$AUTOBUILD_PLATFORM" in
         libdir="$top/stage/lib"
         mkdir -p "$libdir"/release
         export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
+        export CXXFLAGS="$CFLAGS"
         export LFLAGS="$CFLAGS"
         make -C src clean
         make -C src release
