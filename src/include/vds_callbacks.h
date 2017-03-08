@@ -23,9 +23,6 @@
 #include "vds.h"
 #include "vdsaux.h"
 
-void ImmediateModeRenderCallback(VDS::Renderer &rRenderer, VDS::PatchIndex PatchID);
-void FastRenderCallback(VDS::Renderer &rRenderer, VDS::PatchIndex PatchID);
-void VBOFastRenderCallback(VDS::Renderer &rRenderer, VDS::PatchIndex PatchID);
 VDS::Float StdErrorScreenSpace(VDS::BudgetItem *pItem, const VDS::Cut *pCut);
 VDS::Float StdErrorScreenSpaceNoFrustum(VDS::BudgetItem *pItem, const VDS::Cut *pCut);
 VDS::Float StdErrorObjectSpace(VDS::BudgetItem *pItem, const VDS::Cut *pCut);

@@ -66,8 +66,9 @@ void SetValAtOffsetf(char* base, int i, int type, float f);
 void SetValAtOffseti(char* base, int i, int type, int val);
 
 static int TypeSize(int type);
-void GetVAState(VaState* vas);
-
+#if GLOD_COREPROFILE_FIXED
+void GetVAState( VaState* vas );
+#endif
 int GetStrideSize(int numElements, int type);
 
 int PredictSizes(VaState* va, GLuint mode, int count, GLvoid* indices, int *num_triangles, int *num_vertices, int *num_elems);
@@ -75,14 +76,41 @@ int PredictSizes(VaState* va, GLuint mode, int count, GLvoid* indices, int *num_
 /***** PRODUCE PATCH ---> goes from current VA state to a GLOD_RawPatch ******/
 GLOD_RawPatch* ProducePatch(GLenum mode, 
 			GLenum first, GLenum count, 
-			void* indices, GLenum indices_type) {
+			void* indices, GLenum indices_type, glodVBO  *pVBO ) {
   GLOD_RawPatch* p = new GLOD_RawPatch();
 
   VaState vas;
   int num_triangles; int num_vertices;
   int num_elems;
   
-  GetVAState(&vas);
+  // GetVAState(&vas);
+  memset( &vas, 0, sizeof( VaState ) );
+  // figure out counts and values
+
+  vas.va = pVBO->mV.p;
+  vas.va_size = pVBO->mV.size;
+  vas.va_stride = pVBO->mV.stride;
+  vas.va_type = pVBO->mV.type;
+
+  vas.na = pVBO->mN.p;
+  vas.na_stride = pVBO->mN.stride;
+  vas.na_type = pVBO->mN.type;
+
+  vas.ta = pVBO->mT.p;
+  vas.ta_size = pVBO->mT.size;
+  vas.ta_stride = pVBO->mT.stride;
+  vas.ta_type = pVBO->mT.type;
+
+  vas.ca = pVBO->mC.p;
+  vas.ca_size = pVBO->mC.size;
+  vas.ca_stride = pVBO->mC.stride;
+  vas.ca_type = pVBO->mC.type;
+
+  if( vas.va_stride == 0 ) vas.va_stride = GetStrideSize( vas.va_size, vas.va_type );
+  if( vas.na_stride == 0 ) vas.na_stride = GetStrideSize( 3, vas.na_type );;
+  if( vas.ta_stride == 0 ) vas.ta_stride = GetStrideSize( vas.ta_size, vas.ta_type );
+  if( vas.ca_stride == 0 ) vas.ca_stride = GetStrideSize( vas.ca_size, vas.ca_type );
+ 
   vas.ia = indices;
   vas.ia_type = indices_type;
   vas.first = first;
@@ -207,10 +235,29 @@ GLOD_RawPatch* ProducePatch(GLenum mode,
 /***** PRODUCE VA ---> goes from a GLOD_Cut to GLOD_RawPatch to the current VA state ******/
 /**** WE ONLY PRODUCE GL_TRIANGLE ARRAYS */
 int ProduceVA(GLOD_Cut* c, int patch, 
-              void* indices, GLenum indices_type) {
+              void* indices, GLenum indices_type, glodVBO *pVBO ) {
   VaState vas;
 
-  GetVAState(&vas);
+  // GetVAState(&vas);
+  vas.va = pVBO->mV.p;
+  vas.va_size = pVBO->mV.size;
+  vas.va_stride = pVBO->mV.stride;
+  vas.va_type = pVBO->mV.type;
+
+  vas.na = pVBO->mN.p;
+  vas.na_stride = pVBO->mN.stride;
+  vas.na_type = pVBO->mN.type;
+
+  vas.ta = pVBO->mT.p;
+  vas.ta_size = pVBO->mT.size;
+  vas.ta_stride = pVBO->mT.stride;
+  vas.ta_type = pVBO->mT.type;
+
+  vas.ca = pVBO->mC.p;
+  vas.ca_size = pVBO->mC.size;
+  vas.ca_stride = pVBO->mC.stride;
+  vas.ca_type = pVBO->mC.type;
+
   vas.ia = indices;
   vas.ia_type = indices_type;
   vas.first = 0;
@@ -579,7 +626,7 @@ void SetValAtOffseti(char* base, int i, int type, int val) {
 }
 
 
-
+#if GLOD_COREPROFILE_FIXED
 void GetVAState(VaState* va) {
   memset(va, 0, sizeof(VaState));
   // figure out counts and values
@@ -614,6 +661,7 @@ void GetVAState(VaState* va) {
     if (va->ca_stride==0) va->ca_stride=GetStrideSize(va->ca_size, va->ca_type);
   }
 }
+#endif
 
 int GetStrideSize(int numElements, int type){
     switch (type){

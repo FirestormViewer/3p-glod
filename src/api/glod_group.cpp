@@ -229,7 +229,8 @@ void GLOD_Group::addObject(GLOD_Object *obj)
 
 	obj->cut->setGroup(this);
 
-    if(obj->format == GLOD_VDS) {
+#ifdef GLOD_COREPROFILE_FIXED
+	if( obj->format == GLOD_VDS ) {
 
 	switch (errorMode)
 	{
@@ -255,7 +256,7 @@ void GLOD_Group::addObject(GLOD_Object *obj)
 	mpSimplifier->AddCut(   ((VDSCut*)obj->cut)->mpCut );
 //	fprintf(stderr, "mpSimplifier->CutAdded\n");
     }	
-    
+#endif
 #ifndef GLOD_USE_TILES
     currentNumTris += obj->cut->currentNumTris;
 #else
@@ -439,7 +440,8 @@ GLOD_Group::adaptTriangleBudget()
 	currentNumTris = 0;
     for (int i=0; i<numObjects; i++)
     {
-		if (objects[i]->format == GLOD_VDS)
+#ifdef GLOD_COREPROFILE_FIXED
+		if( objects[ i ]->format == GLOD_VDS )
 		{
 			if (VDScutCounted == true)
 				continue;
@@ -448,6 +450,7 @@ GLOD_Group::adaptTriangleBudget()
 			currentNumTris += objects[i]->cut->currentNumTris;
 		}
 		else
+#endif
 		{
 			currentNumTris += objects[i]->cut->currentNumTris;
 		}
@@ -462,7 +465,9 @@ GLOD_Group::adaptTriangleBudget()
     {
 		GLOD_Object *obj = objects[i];
 	
-		if (obj->format!=GLOD_VDS)
+#ifdef GLOD_COREPROFILE_FIXED
+		if( obj->format != GLOD_VDS )
+#endif
 		{
 			obj->budgetCoarsenHeapData=HeapElement(obj);
 			obj->budgetRefineHeapData=HeapElement(obj);
@@ -472,14 +477,15 @@ GLOD_Group::adaptTriangleBudget()
 		// therefore, we only need a single entry in the queues for all 
 		// VDS objects in the group; VDS will take care of distributing the
 		// triangles to each object according to its current error.
-		if (obj->format == GLOD_VDS)
+#ifdef GLOD_COREPROFILE_FIXED
+		if( obj->format == GLOD_VDS )
 		{
 			if (VDScutAdded == true)
 				continue;
 			else
 				VDScutAdded = true;
 		}
-
+#endif
 		if (errorMode == ObjectSpace)
 		{
 			obj->budgetCoarsenHeapData.setKey(

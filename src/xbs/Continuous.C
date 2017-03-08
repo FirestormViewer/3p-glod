@@ -17,6 +17,8 @@
 #include "Continuous.h"
 #include "vds_callbacks.h"
 
+#ifdef GLOD_COREPROFILE_FIXED
+
 void
 VDSHierarchy::initialize(Model *model)
 {
@@ -1578,3 +1580,4 @@ void VDSCut::initVBO()
 
 
 \*****************************************************************************/
+#endif

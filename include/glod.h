@@ -53,12 +53,15 @@ extern "C" {
 /// reserved for glod_core.h::GLOD_FORMAT_UNKNOWN
 #define GLOD_RESERVED                   0x0000 
 
+#ifdef GLOD_COREPROFILE_FIXED
 #define GLOD_CONTINUOUS                 0x0001
+#endif
 #define GLOD_DISCRETE                   0x0002
 #define GLOD_DISCRETE_MANUAL            0x0003
 #define GLOD_DISCRETE_PATCH             0x0004
+#ifdef GLOD_COREPROFILE_FIXED
 #define GLOD_VDS                        0x0001
-        
+#endif        
 /* Object Param Names
  ***************************************************************************/
 #define GLOD_READBACK_SIZE         0x01
@@ -122,6 +125,26 @@ extern "C" {
 #define GLOD_OBJECT_SPACE_ERROR 0x03
 #define GLOD_SCREEN_SPACE_ERROR 0x04
 
+struct glodVBO
+{
+	struct VertexArray
+	{
+		void* p; GLint size; GLenum type; GLsizei stride;
+	} mV;
+	struct NormalArray
+	{
+		void* p; GLenum type; GLsizei stride;
+	} mN;
+	struct TextureArray
+	{
+		void* p; GLint size; GLenum type; GLsizei stride;
+	} mT;
+	struct ColorArray
+	{
+		void* p; GLint size; GLenum type; GLsizei stride;
+	} mC;
+};
+
 GLOD_APIENTRY GLuint glodInit( );
 GLOD_APIENTRY void glodShutdown( );
 
@@ -130,17 +153,16 @@ GLOD_APIENTRY GLuint glodGetError( void );
 GLOD_APIENTRY void glodLoadObject( GLuint name, GLuint groupname, 
                                    const GLvoid *data );
 GLOD_APIENTRY void glodReadbackObject( GLuint name, GLvoid *data );
-GLOD_APIENTRY void glodFillArrays( GLuint object_name, GLuint patch_name );
-GLOD_APIENTRY void glodFillElements( GLuint object_name, GLuint patch_name, 
-                                     GLenum type, GLvoid* out_elements );
+GLOD_APIENTRY void glodFillArrays( GLuint object_name, GLuint patch_name, glodVBO *pVBO );
+GLOD_APIENTRY void glodFillElements( GLuint object_name, GLuint patch_name, GLenum type, GLvoid* out_elements, glodVBO  *pVBO );
 
 
-GLOD_APIENTRY void glodInsertArrays( GLuint name, GLuint patchname, 
+GLOD_APIENTRY void glodInsertArrays( GLuint name, GLuint patchname,
                                      GLenum mode, GLint first, GLsizei count,
-                                     GLuint level, GLfloat geometric_error );
+									 GLuint level, GLfloat geometric_error, glodVBO *pVBO );
 GLOD_APIENTRY void glodInsertElements( GLuint name, GLuint patchname, 
-                                       GLenum mode, GLuint count, GLenum type, GLvoid*indices, 
-                                       GLuint level, GLfloat geometric_error );
+                                       GLenum mode, GLuint count, GLenum type, GLvoid *indices, 
+									   GLuint level, GLfloat geometric_error, glodVBO *pVBO );
 
 
 GLOD_APIENTRY void glodInstanceObject( GLuint name, GLuint instancename, 
@@ -158,7 +180,6 @@ GLOD_APIENTRY void glodNewGroup( GLuint groupname );
 GLOD_APIENTRY void glodAdaptGroup( GLuint groupname );
 GLOD_APIENTRY void glodObjectXform( GLuint object_name, float m1[16],
                                     float m2[16], float m3[16] );
-GLOD_APIENTRY void glodBindObjectXform( GLuint object_name, GLenum which );
 GLOD_APIENTRY void glodDeleteGroup( GLuint groupname );
 
 GLOD_APIENTRY void glodObjectParameterf( GLuint name, GLenum pname,

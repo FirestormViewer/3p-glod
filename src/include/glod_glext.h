@@ -84,31 +84,6 @@ typedef ptrdiff_t GLsizeiptrARB;
 
 #define GL_CLAMP_TO_EDGE                  0x812F
 
-/* Typedefs
-***************************************************************************/
-typedef void (APIENTRY * PFNGLBINDBUFFERARBPROC) (GLenum target, GLuint buffer);
-typedef void (APIENTRY * PFNGLDELETEBUFFERSARBPROC) (GLsizei n, const GLuint *buffers);
-typedef void (APIENTRY * PFNGLGENBUFFERSARBPROC) (GLsizei n, GLuint *buffers);
-typedef void (APIENTRY * PFNGLBUFFERDATAARBPROC) (GLenum target, GLsizeiptrARB size, const GLvoid *data, GLenum usage);
-typedef GLvoid * (APIENTRY * PFNGLMAPBUFFERARBPROC) (GLenum target, GLenum access);
-typedef GLboolean (APIENTRY * PFNGLUNMAPBUFFERARBPROC) (GLenum target);
-
-/* Functions
- ****************************************************************************/
-extern PFNGLGENBUFFERSARBPROC _glGenBuffersARB; // VBO Name Generation Procedure
-extern PFNGLBINDBUFFERARBPROC _glBindBufferARB; // VBO Bind Procedure
-extern PFNGLBUFFERDATAARBPROC _glBufferDataARB; // VBO Data Loading Procedure
-extern PFNGLDELETEBUFFERSARBPROC _glDeleteBuffersARB; // VBO Deletion Procedure
-
-extern PFNGLMAPBUFFERARBPROC _glMapBufferARB; // VBO Map Procedure
-extern PFNGLUNMAPBUFFERARBPROC _glUnmapBufferARB; // VBO Unmap Procedure
-
-extern void GLOD_InitGL();
-extern void GLOD_CleanupGL();
-
-/* Accessors */
-extern bool s_glodHasVBO;
-static inline bool glodHasVBO() {return s_glodHasVBO;}
 
 #endif
 

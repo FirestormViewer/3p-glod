@@ -445,7 +445,6 @@ class mtVertex
     {
         coord.print();
     };
-    virtual void draw();
     virtual int size() const { return sizeof(mtVertex); };
     virtual mtVertex *makeNew() const { return new mtVertex; };
     virtual mtVertex *makeNew(int num) const { return new mtVertex[num]; };
@@ -491,7 +490,6 @@ class mtNVertex : public mtVertex
         coord.print();
 	normal.print();
     };
-    virtual void draw();
     virtual int size() const { return sizeof(mtNVertex); };
     virtual mtVertex *makeNew() const { return new mtNVertex; };
     virtual mtVertex *makeNew(int num) const { return new mtNVertex[num]; };
@@ -529,7 +527,6 @@ class mtTVertex : public mtVertex
         coord.print();
 	texcoord.print();
     };
-    virtual void draw();
     virtual int size() const { return sizeof(mtTVertex); };
     virtual mtVertex *makeNew() const { return new mtTVertex; };
     virtual mtVertex *makeNew(int num) const { return new mtTVertex[num]; };
@@ -567,7 +564,6 @@ class mtCVertex : public mtVertex
         coord.print();
 	color.print();
     };
-    virtual void draw();
     virtual int size() const { return sizeof(mtCVertex); };
     virtual mtVertex *makeNew() const { return new mtCVertex; };
     virtual mtVertex *makeNew(int num) const { return new mtCVertex[num]; };
@@ -612,7 +608,6 @@ class mtCNVertex : public mtVertex
 	color.print();
 	normal.print();
     };
-    virtual void draw();
     virtual int size() const { return sizeof(mtCNVertex); };
     virtual mtVertex *makeNew() const { return new mtCNVertex; };
     virtual mtVertex *makeNew(int num) const { return new mtCNVertex[num]; };
@@ -657,7 +652,6 @@ class mtCTVertex : public mtVertex
 	color.print();
 	texcoord.print();
     };
-    virtual void draw();
     virtual int size() const { return sizeof(mtCTVertex); };
     virtual mtVertex *makeNew() const { return new mtCTVertex; };
     virtual mtVertex *makeNew(int num) const { return new mtCTVertex[num]; };
@@ -702,7 +696,6 @@ class mtNTVertex : public mtVertex
 	normal.print();
 	texcoord.print();
     };
-    virtual void draw();
     virtual int size() const { return sizeof(mtNTVertex); };
     virtual mtVertex *makeNew() const { return new mtNTVertex; };
     virtual mtVertex *makeNew(int num) const { return new mtNTVertex[num]; };
@@ -752,7 +745,6 @@ class mtCNTVertex : public mtVertex
 	normal.print();
 	texcoord.print();
     };
-    virtual void draw();
     virtual int size() const { return sizeof(mtCNTVertex); };
     virtual mtVertex *makeNew() const { return new mtCNTVertex; };
     virtual mtVertex *makeNew(int num) const { return new mtCNTVertex[num]; };
@@ -773,7 +765,6 @@ class mtPoint
 
     mtPoint() { sample = NULL; radius = 0.0; };
     
-    void draw(mtView *view = NULL);
 };
 
 #if 0
@@ -819,7 +810,6 @@ class mtStrip
     void addNVert(mtNVertex *v) { verts[numVerts++] = *v; };
     void addVert(mtVertex *v) { verts[numVerts++] = *v; };
     void addNormal2(mtVec3 *n) { verts[numVerts].normal = *n; };
-    void draw();
 };
 
 class mtTriangle
@@ -845,7 +835,6 @@ class mtTriangle
     void setNormal(mtReal nx, mtReal ny, mtReal nz)
         { normal.set(nx, ny, nz); }
     void print(MT *mt);
-    void draw(MT *mt);
 };
 
 class mtArc
@@ -916,8 +905,6 @@ class mtArc
     mtReal getError(MT *mt, mtCut *cut, float *ret_d=NULL);
     void computeSPH(MT *mt);
     void makeStrips(MT *mt);
-    void draw(MT *mt, mtCut *cut, float d=0);
-    void drawReal(MT *mt, mtView *view = NULL);
     int  getFrame() { return frameno; }
     void setPatchNumber(int patchNum) { patchNumber=patchNum; };
     int  getPatchNumber() const { return patchNumber; };
@@ -1098,7 +1085,6 @@ class mtCut
     mtView *getView() { return &view; }
     void updateView(mtReal *eye, mtReal *viewd, mtReal zp)
          { view.updateView(eye, viewd, zp); };
-    void draw(MT *mt);
 };
 
 #if 0
@@ -1175,7 +1161,6 @@ class MT
     void mergeArcs();
     void calcMaxHeight(int nodeID, int *nodeMax);
     int  calcMaxHeight();
-    void buildDL();
 
   public:
     MT()
@@ -1259,8 +1244,7 @@ class MT
     void computeNORM();
     void flushPointCaches();
     void cachePoint(mtPoint *pt, int pointSize);
-    void drawPointCaches();
-    void enableRetainedMode() { buildDL(); retainedMode = 1; };
+    void enableRetainedMode() { retainedMode = 1; };
     int getNumPatches() const { return numPatches; };
 };
 

@@ -51,9 +51,6 @@ GLOD_APIENTRY GLuint glodInit() {
   tiles[0].min_y=-1;
   tiles[0].max_y=1;
 
-  // init opengl extensions
-  GLOD_InitGL();
-
   return 1;
 }
 
@@ -62,8 +59,6 @@ GLOD_APIENTRY GLuint glodInit() {
  ***************************************************************************/
 GLOD_APIENTRY void glodShutdown() {
   // shutdown OpenGL
-  GLOD_CleanupGL();
-
   // cleanup all groups using glodDeleteGroups... this will kill the
   // objects as well
   while(HashtableNumElements(s_APIState.group_hash) > 0) {

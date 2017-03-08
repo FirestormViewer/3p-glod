@@ -32,12 +32,13 @@
 void HandlePatch(GLOD_Object* obj, GLOD_RawPatch* patch, int level, float geometric_error);
 GLOD_RawPatch* ProducePatch(GLenum mode, 
 			GLenum first, GLenum count, 
-			void* indices, GLenum indices_type); // in RawConvert.c
+			void* indices, GLenum indices_type, glodVBO*); // in RawConvert.c
 
 
 /***************************************************************************/
 
-void glodInsertArrays (GLuint name, GLuint patchname, 
+#ifdef GLOD_COREPROFILE_FIXED
+void glodInsertArrays( GLuint name, GLuint patchname,
 		       GLenum mode,
 		       GLint first, GLsizei count,
 		       GLuint level, GLfloat geometric_error) {
@@ -73,11 +74,11 @@ void glodInsertArrays (GLuint name, GLuint patchname,
   // handle this patch
   HandlePatch(obj, p, level, geometric_error);
 }
-
+#endif
 
 void glodInsertElements (GLuint name, GLuint patchname, 
 			 GLenum mode, GLuint count, GLenum type, GLvoid* indices,
-			 GLuint level, GLfloat geometric_error) {
+			 GLuint level, GLfloat geometric_error, glodVBO  *pVBO ) {
   GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
 
   if(obj == NULL) {
@@ -91,7 +92,7 @@ void glodInsertElements (GLuint name, GLuint patchname,
   }
 
   // make the patch
-  GLOD_RawPatch* p = ProducePatch(mode, 0, count, indices, type);
+  GLOD_RawPatch* p = ProducePatch(mode, 0, count, indices, type, pVBO);
   if(p == NULL) {
     return; // ProducePatch has already set the error flag
   }
@@ -117,9 +118,9 @@ void glodInsertElements (GLuint name, GLuint patchname,
  ***************************************************************************
  ***************************************************************************/
 extern int ProduceVA(GLOD_Cut* c, int patchNum,
-                     void* indices, GLenum indices_type);
+                     void* indices, GLenum indices_type, glodVBO *pVBO );
 
-GLOD_APIENTRY void glodFillArrays( GLuint name, GLuint patch_name ) {
+GLOD_APIENTRY void glodFillArrays( GLuint name, GLuint patch_name, glodVBO *pVBO ) {
   GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
   int patch_id;
   
@@ -143,13 +144,12 @@ GLOD_APIENTRY void glodFillArrays( GLuint name, GLuint patch_name ) {
   patch_id --;// now, correct for the lameness of the hashtable, which stores everything +1
   
   // we're good to go... read the object
-  if(ProduceVA(obj->cut, patch_id, NULL, 0) == 0) {
+  if(ProduceVA(obj->cut, patch_id, NULL, 0, pVBO ) == 0) {
     return;
   }
 }
 
-GLOD_APIENTRY void glodFillElements( GLuint name, GLuint patch_name, 
-                                     GLenum type, GLvoid* out_elements ) {
+GLOD_APIENTRY void glodFillElements( GLuint name, GLuint patch_name, GLenum type, GLvoid* out_elements, glodVBO  *pVBO ) {
   // now read the cut
   GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
   int patch_id;
@@ -174,7 +174,7 @@ GLOD_APIENTRY void glodFillElements( GLuint name, GLuint patch_name,
   patch_id --;// now, correct for the lameness of the hashtable, which stores everything +1
 
   // OK. we're good to go... readback this cut
-  if(ProduceVA(obj->cut, patch_id, out_elements, type) == 0) {
+  if(ProduceVA(obj->cut, patch_id, out_elements, type, pVBO) == 0) {
     return;
   }
 

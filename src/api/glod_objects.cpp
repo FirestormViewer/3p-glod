@@ -52,11 +52,17 @@ void glodNewObject(GLuint name, GLuint groupname, GLenum format) {
     }
     
     // is this format supported?
-    if(!(format == GLOD_DISCRETE || format == GLOD_CONTINUOUS || format == GLOD_DISCRETE_MANUAL || format == GLOD_DISCRETE_PATCH)) {
+#ifdef GLOD_COREPROFILE_FIXED
+	if( !(format == GLOD_DISCRETE || format == GLOD_CONTINUOUS || format == GLOD_DISCRETE_MANUAL || format == GLOD_DISCRETE_PATCH) ) {
         GLOD_SetError(GLOD_BAD_HIERARCHY, "Invalid hierarchy type:", format);
         return;
     }
-    
+#else
+	if( !(format == GLOD_DISCRETE || format == GLOD_DISCRETE_MANUAL || format == GLOD_DISCRETE_PATCH) ) {
+		GLOD_SetError( GLOD_BAD_HIERARCHY, "Invalid hierarchy type:", format );
+		return;
+	}
+#endif
     // make the object
     obj = new GLOD_Object();
     obj->name = name;
@@ -67,14 +73,15 @@ void glodNewObject(GLuint name, GLuint groupname, GLenum format) {
     // initialize the patch table
     obj->patch_id_map = AllocHashtableBySize(PATCH_HASH_BUCKET_SIZE);
     
-    // prepare for inserting arrays
+#ifdef GLOD_COREPROFILE_FIXED
+	// prepare for inserting arrays
     // this is hierarchy-type specific
     if(format == GLOD_CONTINUOUS || format == GLOD_DISCRETE || format == GLOD_DISCRETE_PATCH) {
         
     } else if(format == GLOD_DISCRETE_MANUAL) {
         //...
     }
-    
+#endif
     // do not make the group yet! An object can only be in a group if it has a hierarchy!!!!
     // we do this in glodBuildObject / glodLoadObject
 }
@@ -145,7 +152,11 @@ void glodBuildObject (GLuint name) {
     }
     Model *model=NULL;
     // Build the object
-    if(obj->format == GLOD_DISCRETE || obj->format == GLOD_CONTINUOUS || obj->format == GLOD_DISCRETE_PATCH) {
+#ifdef GLOD_COREPROFILE_FIXED
+	if( obj->format == GLOD_DISCRETE || obj->format == GLOD_CONTINUOUS || obj->format == GLOD_DISCRETE_PATCH ) {
+#else
+	if( obj->format == GLOD_DISCRETE || obj->format == GLOD_DISCRETE_PATCH ) {
+#endif
         // check our state
         if(obj->prebuild_buffer == NULL) {
             GLOD_SetError(GLOD_INVALID_STATE, "Object has already been built:", name);
@@ -191,9 +202,11 @@ void glodBuildObject (GLuint name) {
         case GLOD_DISCRETE:
             obj->hierarchy = new DiscreteHierarchy(obj->opType);
             break;
-        case GLOD_VDS:
+#ifdef GLOD_COREPROFILE_FIXED
+		case GLOD_VDS:
             obj->hierarchy = new VDSHierarchy();
             break;
+#endif
         case GLOD_DISCRETE_PATCH:
             obj->hierarchy = new DiscretePatchHierarchy(obj->opType);
             break;
@@ -255,57 +268,6 @@ void glodDeleteObject(GLuint name)
     
     return;
 } /* End of glodDeleteObject() */
-
-
-void glodBindObjectXform(GLuint objectname, GLenum what) {
-    float m1[16];
-    float m2[16];
-    
-    const bool h_model = what && GL_MODELVIEW_MATRIX;
-    const bool h_proj = what && GL_PROJECTION_MATRIX;
-    const bool h_neither = !(h_model || h_proj);
-    
-    GLOD_Object *obj =
-        (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, objectname);
-    
-    if(obj == NULL ) {
-        GLOD_SetError(GLOD_INVALID_NAME, "Object doesn't exist:", objectname);
-        return;
-    }
-    
-    if(obj->hierarchy == NULL) {
-        GLOD_SetError(GLOD_INVALID_STATE, "Object has not been built: ", objectname);
-        return;
-    }
-    
-    if(h_neither) {
-        memset(m1, 0, sizeof(float)*16);
-        m1[0] = 1.0;
-        m1[5] = 1.0;
-        m1[10] = 1.0;
-        m1[15] = 1.0;
-    }
-    
-    if(h_proj) {
-        glGetFloatv(GL_PROJECTION_MATRIX, m1);
-    }
-    
-    if(h_model) {
-        glGetFloatv(GL_MODELVIEW_MATRIX, m2);
-    }
-    
-    if(h_proj & ! h_model) {
-        obj->cut->view.SetFrom(m1,NULL,NULL);
-    }else if(h_model & ! h_proj) {
-        obj->cut->view.SetFrom(m2, NULL,NULL);    
-    } else if(h_neither) {
-        obj->cut->view.SetFrom(m1, NULL,NULL);
-    } else if(h_proj & h_model) {
-        obj->cut->view.SetFrom(m1,m2,NULL);
-    }
-    
-    obj->cut->viewChanged();
-}
 
 void glodObjectXform(GLuint objectname, float m1[16], float m2[16], float m3[16])
 {
@@ -405,10 +367,12 @@ void glodLoadObject(GLuint name, GLuint group_name, const GLvoid *data) {
     case GLOD_DISCRETE:
         obj->hierarchy = new DiscreteHierarchy(Half_Edge_Collapse); // placeholder: op type gets set in the load()
         break;
-    case GLOD_CONTINUOUS:
+#ifdef GLOD_COREPROFILE_FIXED
+	case GLOD_CONTINUOUS:
         obj->hierarchy = new VDSHierarchy();
         ((VDSHierarchy*) obj->hierarchy)->InitForLoad();
         break;
+#endif
     case GLOD_DISCRETE_PATCH:
         obj->hierarchy = new DiscretePatchHierarchy(Half_Edge_Collapse);
         break;
@@ -445,8 +409,12 @@ void glodLoadObject(GLuint name, GLuint group_name, const GLvoid *data) {
 /* called by glodInsertArrays and glodInsertElements which are in Raw.cpp */
 void HandlePatch(GLOD_Object* obj, GLOD_RawPatch* patch, int level, float geometric_error) {
     // now store this patch until build time
-    if(obj->format == GLOD_DISCRETE || obj->format == GLOD_CONTINUOUS || obj->format == GLOD_DISCRETE_PATCH) {
-        // DISCRETE & CONTINUOUS PATCH ACCUMULATION STEP
+#ifdef GLOD_COREPROFILE_FIXED
+	if( obj->format == GLOD_DISCRETE || obj->format == GLOD_CONTINUOUS || obj->format == GLOD_DISCRETE_PATCH ) {
+#else
+	if( obj->format == GLOD_DISCRETE || obj->format == GLOD_DISCRETE_PATCH ) {
+#endif
+		// DISCRETE & CONTINUOUS PATCH ACCUMULATION STEP
         if(obj->prebuild_buffer == NULL) obj->prebuild_buffer = (void*) new GLOD_RawObject();
         GLOD_RawObject* raw = (GLOD_RawObject*) obj->prebuild_buffer;
         raw->AddPatch(patch);
@@ -481,72 +449,12 @@ void glodDrawPatch(GLuint name, GLuint patchname) {
     obj->drawPatch(patch_id);
 }
 
-void DrawRawGLOD(int name);
-void glodDebugDrawObject(GLuint name) {
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
-    if(obj == NULL) {
-        GLOD_SetError(GLOD_INVALID_NAME, "Object does not exist.\n", name);
-        return;
-    }
-    
-    if(obj->hierarchy == NULL) {
-        fprintf(stderr, "Warning: drawing of raw objects is not supported by the spec.\n");
-        DrawRawGLOD(name);
-    } else {
-        int p;
-        glodGetObjectParameteriv(name, GLOD_NUM_PATCHES, (GLint*)&p);
-        for(int i = 0; i < p; i++)
-            obj->drawPatch(i);
-    }
-}
-
-
-
-
-/***************************************************************************/
-void DrawRawGLOD(int name) {
-    int i; int j; int k;
-    // for now, draw the patch wrongly
-    GLOD_RawObject* raw;
-    GLOD_RawPatch* patch;
-    GLOD_Object* obj = (GLOD_Object*) HashtableSearchPtr(s_APIState.object_hash, name);
-    raw = (GLOD_RawObject*) obj->prebuild_buffer;
-    if(raw  == NULL) {
-        GLOD_SetError(GLOD_INVALID_NAME, "Raw Object doesn't exist!", name);
-        return;
-    }
-    
-    // draw
-    for(i = 0; i < (int) raw->num_patches; i++) {
-        patch = *raw->patches + i;
-        
-        glVertexPointer(3,
-            GL_FLOAT,
-            0,
-            patch->vertices);
-        glNormalPointer(GL_FLOAT,
-            0,
-            patch->vertex_normals);
-        glDrawElements(GL_TRIANGLES,
-            patch->num_triangles*3,
-            GL_UNSIGNED_INT,
-            patch->triangles);
-        
-        (void)j; (void)k;
-    }
-}
-
-
-
 
 //
 //
 //     GLOD_Object Class Methods
 //
 //
-
-
-
 GLOD_Object::~GLOD_Object()
 {
     if (group != NULL)

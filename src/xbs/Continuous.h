@@ -16,7 +16,8 @@
 #include "xbs.h"
 #include "Hierarchy.h"
 
-class VDSHierarchy : public Hierarchy
+#ifdef GLOD_COREPROFILE_FIXED
+class VDSHierarchy: public Hierarchy
 {
     private:
         int *danglingVerts;
@@ -131,6 +132,7 @@ class VDSCut : public GLOD_Cut
 
         void initVBO();
 };
+#endif
 
 #endif //#ifndef _GLOD_XBS_CONTINUOUS_H
 

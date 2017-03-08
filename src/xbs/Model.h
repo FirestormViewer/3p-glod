@@ -544,7 +544,6 @@ class xbsTriangle
             patchNum = patch;
         };
         void print();
-        void draw();
 };
 
 
@@ -818,7 +817,6 @@ class xbsVertex
         {
             coord.print();
         };
-        virtual void draw();
 
         // size and allocation functions
         virtual int size() const { return sizeof(xbsVertex); };
@@ -908,7 +906,6 @@ class xbsNVertex : public xbsVertex
             coord.print();
             normal.print();
         };
-        virtual void draw();
         virtual int size() const { return sizeof(xbsNVertex); };
         virtual xbsVertex *makeNew() const { return new xbsNVertex; };
         virtual xbsVertex *makeNew(int num) const { return new xbsNVertex[num]; };
@@ -987,7 +984,6 @@ class xbsTVertex : public xbsVertex
             coord.print();
             texcoord.print();
         };
-        virtual void draw();
         virtual int size() const { return sizeof(xbsTVertex); };
         virtual xbsVertex *makeNew() const { return new xbsTVertex; };
         virtual xbsVertex *makeNew(int num) const { return new xbsTVertex[num]; };
@@ -1064,7 +1060,6 @@ class xbsCVertex : public xbsVertex
             coord.print();
             color.print();
         };
-        virtual void draw();
         virtual int size() const { return sizeof(xbsCVertex); };
         virtual xbsVertex *makeNew() const { return new xbsCVertex; };
         virtual xbsVertex *makeNew(int num) const { return new xbsCVertex[num]; };
@@ -1152,7 +1147,6 @@ class xbsCNVertex : public xbsVertex
             color.print();
             normal.print();
         };
-        virtual void draw();
         virtual int size() const { return sizeof(xbsCNVertex); };
         virtual xbsVertex *makeNew() const { return new xbsCNVertex; };
         virtual xbsVertex *makeNew(int num) const { return new xbsCNVertex[num]; };
@@ -1248,7 +1242,6 @@ class xbsCTVertex : public xbsVertex
             color.print();
             texcoord.print();
         };
-        virtual void draw();
         virtual int size() const { return sizeof(xbsCTVertex); };
         virtual xbsVertex *makeNew() const { return new xbsCTVertex; };
         virtual xbsVertex *makeNew(int num) const { return new xbsCTVertex[num]; };
@@ -1342,7 +1335,6 @@ class xbsNTVertex : public xbsVertex
             normal.print();
             texcoord.print();
         };
-        virtual void draw();
         virtual int size() const { return sizeof(xbsNTVertex); };
         virtual xbsVertex *makeNew() const { return new xbsNTVertex; };
         virtual xbsVertex *makeNew(int num) const { return new xbsNTVertex[num]; };
@@ -1439,7 +1431,6 @@ class xbsCNTVertex : public xbsVertex
             normal.print();
             texcoord.print();
         };
-        virtual void draw();
         virtual int size() const { return sizeof(xbsCNTVertex); };
         virtual xbsVertex *makeNew() const { return new xbsCNTVertex; };
         virtual xbsVertex *makeNew(int num) const { return new xbsCNTVertex[num]; };

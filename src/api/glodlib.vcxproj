@@ -112,7 +112,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>odbc32.lib;odbccp32.lib;opengl32.lib;mt.lib;ply.lib;xbs.lib;vdslib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>odbc32.lib;odbccp32.lib;mt.lib;ply.lib;xbs.lib;vdslib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\lib\Release\glod.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -202,7 +202,7 @@
       <Culture>0x0409</Culture>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>opengl32.lib;mt.lib;ply.lib;xbs.lib;vdslib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>mt.lib;ply.lib;xbs.lib;vdslib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>..\..\lib\Debug\glod.dll</OutputFile>
       <SuppressStartupBanner>true</SuppressStartupBanner>
       <AdditionalLibraryDirectories>..\..\lib\Debug;..\vds\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
@@ -210,6 +210,7 @@
       <ProgramDatabaseFile>.\Debug/glod.pdb</ProgramDatabaseFile>
       <ImportLibrary>..\..\lib\Debug\glod.lib</ImportLibrary>
       <TargetMachine>MachineX86</TargetMachine>
+      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
       <Message>Copying DLL to bin</Message>

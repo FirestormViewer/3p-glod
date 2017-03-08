@@ -261,59 +261,6 @@ int xbsVertex::onBorder()
         return 1;
     }
 }
-
-// Draw functions for immediate mode rendering of xbsVertex and its
-// subclasses. Used to be used by the MT hierarchy. Still probably a
-// handy enough thing to keep around, given that it's pretty simple
-// stuff.
-void xbsVertex::draw()
-{
-    glVertex3fv(this->coord.data);
-}
-
-void xbsCVertex::draw()
-{
-    glColor3ubv(this->color.data);
-    glVertex3fv(this->coord.data);
-}
-
-void xbsNVertex::draw()
-{
-    glNormal3fv(this->normal.data);
-    glVertex3fv(this->coord.data);
-}
-
-void xbsTVertex::draw()
-{
-    glTexCoord2fv(this->texcoord.data);
-    glVertex3fv(this->coord.data);
-}
-
-void xbsCNVertex::draw()
-{
-    glColor3ubv(this->color.data);
-    glNormal3fv(this->normal.data);
-}
-
-void xbsCTVertex::draw()
-{
-    glColor3ubv(this->color.data);
-    glTexCoord2fv(this->texcoord.data);
-}
-
-void xbsNTVertex::draw()
-{
-    glNormal3fv(this->normal.data);
-    glTexCoord2fv(this->texcoord.data);
-}
-
-void xbsCNTVertex::draw()
-{
-    glColor3ubv(this->color.data);
-    glNormal3fv(this->normal.data);
-    glTexCoord2fv(this->texcoord.data);
-}
-
 // Routines to convert from xbsVertex to mtVertex
 mtVertex *
 xbsVertex::makeMTVertex()

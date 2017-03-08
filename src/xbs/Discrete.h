@@ -245,9 +245,7 @@ class DiscreteCut : public GLOD_Cut
         virtual void viewChanged() { }
         virtual void adaptObjectSpaceErrorThreshold(float threshold);
         virtual void adaptScreenSpaceErrorThreshold(float threshold);
-#ifdef GLOD
-        virtual void draw(int patchnum);
-#endif
+
         virtual void coarsen(ErrorMode mode, int triTermination,
                              float ErrorTermination);
         virtual void refine(ErrorMode mode, int triTermination,

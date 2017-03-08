@@ -1112,62 +1112,6 @@ void DiscreteCut::readback(int npatch, GLOD_RawPatch* raw) {
 }
 #endif
 
-#ifdef GLOD
-/*****************************************************************************\
- @DiscreteCut::draw
- -----------------------------------------------------------------------------
- description : 
- input       : 
- output      : 
- notes       : 
-\*****************************************************************************/
-void DiscreteCut::draw(int patchnum) {
-
-    if ((patchnum < 0) || (patchnum >= hierarchy->LODs[LODNumber]->numPatches))
-    {
-        fprintf(stderr, "DiscreteCut::draw(%i): invalid patch number [n=%i]\n", patchnum, hierarchy->LODs[LODNumber]->numPatches);
-        return;
-    }
-
-  
-    DiscretePatch *patch = &(hierarchy->LODs[LODNumber]->patches[patchnum]);
-    AttribSetArray& verts = patch->getVerts();
-    
-    for (int area=0; area<GLOD_NUM_TILES; area++){
-#ifdef GLOD_USE_TILES
-        //if (view.computePixelsOfError(hierarchy->LODs[LODNumber]->errorCenter, 
-        //                              hierarchy->LODs[LODNumber]->errorOffsets, 
-        //                              hierarchy->errors[LODNumber],area) < 0.0000000001)
-        //    continue;
-#endif
-        if (patch->numIndices==0) return;
-        
-#ifdef GLOD_USE_LISTS
-        if (! verts.glInitialized()) {
-            int id = glGenLists(1);
-            verts.glInit(false); // force use of VA
-
-            glNewList(id, GL_COMPILE);
-            verts.glBind(false);
-            glDrawElements(GL_TRIANGLES, patch->numIndices, GL_UNSIGNED_INT,
-                           patch->indices);
-            verts.glUnbind(false);
-            glEndList();
-            verts.m_VBOid = id;
-        }
-        glCallList(id);
-#else
-        if(! verts.glInitialized())
-            verts.glInit();
-        
-        verts.glBind();
-        glDrawElements(GL_TRIANGLES, patch->numIndices, GL_UNSIGNED_INT,
-                       patch->indices);
-        verts.glUnbind();
-#endif
-    }
-}
-#endif
 
 /*****************************************************************************\
  @ Discretehierarchy::Optimize
