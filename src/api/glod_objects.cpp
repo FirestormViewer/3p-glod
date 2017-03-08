@@ -449,7 +449,9 @@ void glodDrawPatch(GLuint name, GLuint patchname) {
     obj->drawPatch(patch_id);
 }
 
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
 
+    GLOD_Object* obj = (GLOD_Object*) HashtableSearch(s_APIState.object_hash, name);
 //
 //
 //     GLOD_Object Class Methods

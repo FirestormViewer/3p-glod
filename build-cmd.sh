@@ -1,96 +1,91 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 # turn on verbose debugging output for parabuild logs.
-set -x
+exec 4>&1; export BASH_XTRACEFD=4; set -x
 # make errors fatal
 set -e
+# complain about unreferenced env variables
+set -u
 
 if [ -z "$AUTOBUILD" ] ; then 
-    fail
+    exit 1
 fi
 
 if [ "$OSTYPE" = "cygwin" ] ; then
-    export AUTOBUILD="$(cygpath -u $AUTOBUILD)"
+    autobuild="$(cygpath -u $AUTOBUILD)"
+else
+    autobuild="$AUTOBUILD"
 fi
 
 # run build from root of checkout
 cd "$(dirname "$0")"
-
-# load autbuild provided shell functions and variables
-set +x
-eval "$("$AUTOBUILD" source_environment)"
-set -x
-
 top="$(pwd)"
 STAGING_DIR="$(pwd)/stage"
 
-GLOD_VERSION=1.0pre4
+# load autobuild provided shell functions and variables
+source_environment_tempfile="$STAGING_DIR/source_environment.sh"
+"$autobuild" source_environment > "$source_environment_tempfile"
+. "$source_environment_tempfile"
+
+# Early versions of GLOD seem awfully coy about version numbers. The most
+# likely place we've found is the README file's CHANGELOG section -- and even
+# that doesn't seem completely up-to-date!
+# The first sed command prints everything from the word CHANGELOG through the
+# end of the file.
+# The second sed command matches lines that look like this:
+# version (date)
+# trusting that from the CHANGELOG line on, the only lines that look like that
+# are in fact version headers.
+# We only want the second sed command to print the FIRST version header -- so
+# instead of just printing every such line, make it execute {spq}: substitute,
+# print, quit.
+# But for some reason that introduces a final '\r' character -- yes, even on
+# Posix. Get rid of it.
+GLOD_VERSION="$(sed -n '/^CHANGELOG/,$p' README | \
+sed -n -E '/^([^[:space:]]+)[[:space:]]+\(.*\)/{
+s//\1/
+p
+q
+}' | \
+tr -d '\r')"
+
 build=${AUTOBUILD_BUILD_ID:=0}
 echo "${GLOD_VERSION}.${build}" > "${STAGING_DIR}/VERSION.txt"
 
 case "$AUTOBUILD_PLATFORM" in
-    "windows")
-        if [ "${ND_AUTOBUILD_ARCH}" == "x64" ]
-        then
-          build_sln "glodlib.sln" "Debug|x64"
-          build_sln "glodlib.sln" "Release|x64"
-        else
-          build_sln "glodlib.sln" "Debug|Win32"
-          build_sln "glodlib.sln" "Release|Win32"
-        fi
+    windows*)
+        build_sln "glodlib.sln" "Release|$AUTOBUILD_WIN_VSPLATFORM"
 
-		mkdir -p stage/lib/{debug,release}
-        cp "lib/debug/glod.lib" \
-            "stage/lib/debug/glod.lib"
-        cp "lib/debug/glod.dll" \
-            "stage/lib/debug/glod.dll"
-        cp "src/api/debug/glod.pdb" \
-            "stage/lib/debug/glod.pdb"
-        cp "lib/release/glod.lib" \
-            "stage/lib/release/glod.lib"
-        cp "lib/release/glod.dll" \
-            "stage/lib/release/glod.dll"
+        mkdir -p stage/lib/release
+
+        cp "lib/release/glod.lib" "stage/lib/release/glod.lib"
+        cp "lib/release/glod.dll" "stage/lib/release/glod.dll"
     ;;
-        "darwin")
-			libdir="$top/stage/lib"
-			export CFLAGS="-arch i386 -arch x86_64"
-			export LFLAGS="-arch i386 -arch x86_64"
-            mkdir -p "$libdir"/{debug,release}
-			make -C src clean
-			# "make clean" doesn't, apparently.
-			find . -name \*.a -print0 | xargs -0 rm
-			make -C src debug
-			install_name_tool -id "@executable_path/../Resources/libGLOD.dylib" "lib/libGLOD.dylib" 
-			cp "lib/libGLOD.dylib" \
-				"$libdir/debug/libGLOD.dylib"
-			make -C src clean
-			# "make clean" doesn't, apparently.
-			find . -name \*.a -print0 | xargs -0 rm
-			make -C src release
-			install_name_tool -id "@executable_path/../Resources/libGLOD.dylib" "lib/libGLOD.dylib" 
-			cp "lib/libGLOD.dylib" \
-				"$libdir/release/libGLOD.dylib"
-		;;
-        "linux")
-			libdir="$top/stage/lib"
-            mkdir -p "$libdir"/{debug,release}
-			export CFLAGS=${ND_AUTOBUILD_GCC_ARCH_FLAG}
-			export CXXFLAGS=${ND_AUTOBUILD_GCC_ARCH_FLAG}
-			export LDFLAGS=${ND_AUTOBUILD_GCC_ARCH_FLAG}
-			make -C src clean
-			make -C src debug
-			cp "lib/libGLOD.so" \
-				"$libdir/debug/libGLOD.so"
-			make -C src clean
-			make -C src release
-			cp "lib/libGLOD.so" \
-				"$libdir/release/libGLOD.so"
-        ;;
+    darwin*)
+        libdir="$top/stage/lib"
+        mkdir -p "$libdir"/release
+        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
+        export CXXFLAGS="$CFLAGS"
+        export LFLAGS="$CFLAGS"
+        make -C src clean
+        make -C src release
+        install_name_tool -id "@executable_path/../Resources/libGLOD.dylib" "lib/libGLOD.dylib" 
+        cp "lib/libGLOD.dylib" \
+            "$libdir/release/libGLOD.dylib"
+    ;;
+    linux*)
+        libdir="$top/stage/lib"
+        mkdir -p "$libdir"/release
+        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
+        export CXXFLAGS="$CFLAGS"
+        export LFLAGS="$CFLAGS"
+        make -C src clean
+        make -C src release
+        cp "lib/libGLOD.so" \
+            "$libdir/release/libGLOD.so"
+    ;;
 esac
 mkdir -p "stage/include/glod"
 cp "include/glod.h" "stage/include/glod/glod.h"
 mkdir -p stage/LICENSES
 cp LICENSE stage/LICENSES/GLOD.txt
-
-pass
-
