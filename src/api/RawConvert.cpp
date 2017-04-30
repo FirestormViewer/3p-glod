@@ -664,6 +664,9 @@ void GetVAState(VaState* va) {
 #endif
 
 int GetStrideSize(int numElements, int type){
+    if( numElements == 0 )
+        return 0;
+    
     switch (type){
 	case GL_BYTE:
 	    return numElements*sizeof(GLbyte);
