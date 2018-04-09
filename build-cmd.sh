@@ -76,6 +76,7 @@ case "$AUTOBUILD_PLATFORM" in
     linux*)
         libdir="$top/stage/lib"
         mkdir -p "$libdir"/release
+	mkdir -p lib/
         export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE "
         export CXXFLAGS="$CFLAGS"
         export LFLAGS="$CFLAGS"
