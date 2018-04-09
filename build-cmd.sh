@@ -76,13 +76,14 @@ case "$AUTOBUILD_PLATFORM" in
     linux*)
         libdir="$top/stage/lib"
         mkdir -p "$libdir"/release
-        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE"
+        export CFLAGS="-m$AUTOBUILD_ADDRSIZE $LL_BUILD_RELEASE "
         export CXXFLAGS="$CFLAGS"
         export LFLAGS="$CFLAGS"
         make -C src clean
         make -C src release
-        cp "lib/libGLOD.so" \
-            "$libdir/release/libGLOD.so"
+        cp "lib/libGLOD.a"  "$libdir/release/"
+        cp "lib/libply.a"  "$libdir/release/"
+        cp "src/vds/libvds.a.a"  "$libdir/release/"
     ;;
 esac
 mkdir -p "stage/include/glod"
