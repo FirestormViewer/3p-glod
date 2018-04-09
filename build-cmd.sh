@@ -83,7 +83,7 @@ case "$AUTOBUILD_PLATFORM" in
         make -C src release
         cp "lib/libGLOD.a"  "$libdir/release/"
         cp "lib/libply.a"  "$libdir/release/"
-        cp "src/vds/libvds.a.a"  "$libdir/release/"
+        cp "src/vds/libvds.a"  "$libdir/release/"
     ;;
 esac
 mkdir -p "stage/include/glod"
