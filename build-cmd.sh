@@ -54,6 +54,7 @@ echo "${GLOD_VERSION}.${build}" > "${STAGING_DIR}/VERSION.txt"
 
 case "$AUTOBUILD_PLATFORM" in
     windows*)
+        devenv /upgrade glodlib.sln
         build_sln "glodlib.sln" "Release|$AUTOBUILD_WIN_VSPLATFORM"
 
         mkdir -p stage/lib/release
