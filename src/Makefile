@@ -116,11 +116,11 @@ glod_all: vds_dir  # these have their own makefiles
 # Build shared library
 glod_all: ../lib/$(GLOD_LIBRARY_NAME)
 ../lib/$(GLOD_LIBRARY_NAME): $(GLOD_OBJECTS) $(OTHER_OBJECTS)
-ifneq ($(strip $(HWOS)), Linux)
-	$(CC) $(GCC_SHAREDFLAG) $(LFLAGS) -o ../lib/$(GLOD_LIBRARY_NAME) $(GLOD_OBJECTS) $(OTHER_OBJECTS)
-else
+#ifneq ($(strip $(HWOS)), Linux)
+#	$(CC) $(GCC_SHAREDFLAG) $(LFLAGS) -o ../lib/$(GLOD_LIBRARY_NAME) $(GLOD_OBJECTS) $(OTHER_OBJECTS)
+#else
 	ar rcs ../lib/$(GLOD_LIBRARY_NAME) $(GLOD_OBJECTS) $(OTHER_OBJECTS)
-endif
+#endif
 
 # Build plylib which is needed by samples
 ../lib/$(PLY_LIBRARY_NAME): ./ply/plyfile.o ./ply/PlyModel.o
